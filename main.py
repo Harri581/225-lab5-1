@@ -22,6 +22,11 @@ def init_db():
                 phone TEXT NOT NULL
             );
         ''')
+        try:
+            db.execute('ALTER TABLE contacts ADD COLUMN age INTEGER;')
+        except sqlite3.OperationalError:
+            pass
+        
         db.commit()
 
 @app.route('/', methods=['GET', 'POST'])
@@ -38,9 +43,10 @@ def index():
         else:
             name = request.form.get('name')
             phone = request.form.get('phone')
+            age = request.form.get('age')
             if name and phone:
                 db = get_db()
-                db.execute('INSERT INTO contacts (name, phone) VALUES (?, ?)', (name, phone))
+                db.execute('INSERT INTO contacts (name, phone, age) VALUES (?, ?, ?)', (name, phone, age))
                 db.commit()
                 message = 'Contact added successfully.'
             else:
@@ -64,6 +70,8 @@ def index():
                 <input type="text" id="name" name="name" required><br>
                 <label for="phone">Phone Number:</label><br>
                 <input type="text" id="phone" name="phone" required><br><br>
+                <label for="age">Age:</label><br>
+                <input type="number" id="age" name="age" required><br><br>
                 <input type="submit" value="Submit">
             </form>
             <p>{{ message }}</p>
@@ -72,12 +80,14 @@ def index():
                     <tr>
                         <th>Name</th>
                         <th>Phone Number</th>
+                        <th>Age</th>
                         <th>Delete</th>
                     </tr>
                     {% for contact in contacts %}
                         <tr>
                             <td>{{ contact['name'] }}</td>
                             <td>{{ contact['phone'] }}</td>
+                            <td>{{ contact['age'] }}</td>
                             <td>
                                 <form method="POST" action="/">
                                     <input type="hidden" name="contact_id" value="{{ contact['id'] }}">
