@@ -13,6 +13,7 @@ def generate_test_data(num_contacts):
     for i in range(num_contacts):
         name = f'Test Name {i}'
         phone = f'123-456-789{i}'
+        age = f'21{i}'
         db.execute('INSERT INTO contacts (name, phone) VALUES (?, ?)', (name, phone))
     db.commit()
     print(f'{num_contacts} test contacts added to the database.')
